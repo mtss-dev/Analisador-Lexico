@@ -1,1 +1,3 @@
-char teste = 'aa'
+char teste = 'a'
+char teste2 = "sucumba999
+"

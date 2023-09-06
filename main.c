@@ -94,6 +94,10 @@ void grava_token(FILE *out, struct Token *tk){
     
     if (aux < linha_atual){
         aux = linha_atual;
+        if(linha_atual > 1){
+            sprintf(text, "\n");
+            fwrite(text, strlen(text), 1,out);
+        }
         sprintf(text, "Tokens        ||    Lexemas --> linha: %d\n", linha_atual);
         fwrite(text, strlen(text), 1,out);
     }
@@ -236,6 +240,11 @@ void grava_token(FILE *out, struct Token *tk){
 
     case LIT_CHAR:
         sprintf(text, "LIT_CHAR \t\t\t %s\n", tk->name);
+        fwrite(text, strlen(text), 1, out);
+        break;
+
+    case LIT_STRING:
+        sprintf(text, "LIT_STRING \t\t\t %s\n", tk->name);
         fwrite(text, strlen(text), 1, out);
         break;
 
@@ -398,7 +407,6 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
 
 
 // verifica se é um identificador ou uma palavra reservada e passa para grava_token()
-// isso aqui tá uma gambiarra da porra, tem que provavelmente ajeitar a estrutura do hash
 struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
     int word_cap = 10, word_size = 0;
 
@@ -516,6 +524,43 @@ struct Token *verificar_caractere(FILE *f_in, FILE *f_out){
     return NULL;
 }
 
+struct Token *verificar_string(FILE *f_in, FILE *f_out){
+    int word_cap = 10, word_size = 0;
+
+    struct Token *tk = (struct Token *)malloc(sizeof(struct Token));
+    tk->name = (char *)malloc(sizeof(word_cap*sizeof(char)));
+
+    if(entry == 34){
+        entry = prox_char(f_in);
+        while (entry != 34){
+
+            if (entry == '\n'){
+                printf("erro! não finalizou a string\n");
+                exit(EXIT_FAILURE);
+            }
+
+            if (word_size >= word_cap){
+                word_cap += 10;  // Aumente a capacidade em incrementos de 10
+                tk->name = (char *)realloc(tk->name, word_cap * sizeof(char));
+
+                if (tk->name == NULL) {
+                    fprintf(stderr, "Erro na alocação de memória\n");
+                    exit(EXIT_FAILURE);
+                }
+            }
+            tk->name[word_size++] = entry;
+            entry = prox_char(f_in);
+        }
+        
+        tk->tag = LIT_STRING;
+        grava_token(f_out, tk);
+        return tk;
+    }
+
+    return NULL;
+   
+}
+
 void analex(FILE *f_in, FILE *f_out){
 
     struct Token *tk = NULL;
@@ -527,6 +572,7 @@ void analex(FILE *f_in, FILE *f_out){
     tk = verificar_operadores(f_in, f_out);
     tk = verificar_digitos(f_in, f_out);
     tk = verificar_caractere(f_in, f_out);
+    tk = verificar_string(f_in, f_out);
     
 }
 

@@ -3,3 +3,9 @@ KW_CHAR 			 char
 TK_ID 				 teste
 OP_ATRIB 			 =
 LIT_CHAR 			 a
+
+Tokens        ||    Lexemas --> linha: 2
+KW_CHAR 			 char
+TK_ID 				 teste
+LIT_INT 			 22
+OP_ATRIB 			 =
