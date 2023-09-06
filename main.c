@@ -234,6 +234,11 @@ void grava_token(FILE *out, struct Token *tk){
         fwrite(text, strlen(text), 1, out);
         break;
 
+    case LIT_CHAR:
+        sprintf(text, "LIT_CHAR \t\t\t %s\n", tk->name);
+        fwrite(text, strlen(text), 1, out);
+        break;
+
     default:
         break;
     }
@@ -333,6 +338,10 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
         return tk;
 
     default:
+        if (feof(f_in) == 1){
+            return NULL;
+        }
+
         tk->tag = entry_aux;
         grava_token(f_out, tk);
         return tk;
@@ -483,6 +492,29 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
     return NULL;
 }
 
+struct Token *verificar_caractere(FILE *f_in, FILE *f_out){
+    struct Token *tk = (struct Token *)malloc(sizeof(struct Token));
+
+    if(entry == 39){
+        entry = prox_char(f_in);
+
+        tk->name = &entry;
+        tk->tag = LIT_CHAR;
+
+        grava_token(f_out, tk);
+
+        entry = prox_char(f_in);
+
+        if (entry != 39){
+            // erro
+            printf("deu merda, caractere grande demais\n");
+            exit(EXIT_FAILURE);
+        }
+        return tk;
+    }
+
+    return NULL;
+}
 
 void analex(FILE *f_in, FILE *f_out){
 
@@ -491,9 +523,11 @@ void analex(FILE *f_in, FILE *f_out){
     ignorar_espacos(f_in);
     verificar_comentário(f_in);
 
+    tk = verificar_identificador(f_in, f_out);
     tk = verificar_operadores(f_in, f_out);
     tk = verificar_digitos(f_in, f_out);
-    tk = verificar_identificador(f_in, f_out);
+    tk = verificar_caractere(f_in, f_out);
+    
 }
 
 void main(){

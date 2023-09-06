@@ -1,0 +1,5 @@
+Tokens        ||    Lexemas --> linha: 1
+KW_CHAR 			 char
+TK_ID 				 teste
+OP_ATRIB 			 =
+LIT_CHAR 			 a
