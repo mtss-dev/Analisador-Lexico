@@ -361,11 +361,25 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
     
 }
  
+ // função auxiliar para remover os zeros desnecessários de um número real
+ char *remove_zeros_and_concat(double value, const char *str) {
+    char num_str[50];
+    snprintf(num_str, sizeof(num_str), "%g", value);
+    size_t len = strlen(num_str) + strlen(str) + 1;
+    char *result = (char *)malloc(len);
+    if (result == NULL) {
+        return NULL;
+    }
+    strcpy(result, num_str);
+    strcat(result, str);
+    return result;
+}
 
 // verifica o tipo de digito a ser tokenizado (int ou real) e passa para grava_token()
 // é capaz de atualizar a contagem de linha incrementando linha_atual chamando ignorar_espaco()
 struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
     double value = 0, temp = 0.1;
+    bool isReal = false;
 
     struct Token *tk = (struct Token *)malloc(sizeof(struct Token));
 
@@ -374,6 +388,8 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
 		    value = 10 * value + (entry - '0');
             entry = prox_char(f_in);
 
+            //Se encontrar uma letra no meio do número, é um erro
+
             if (entry == '.'){
                 entry = prox_char(f_in);
                 while(isdigit(entry)){
@@ -381,18 +397,32 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
                     temp = temp / 10;
                     entry = prox_char(f_in);
                 }
-                tk->tag = LIT_REAL;
-                tk->value = value;
-                grava_token(f_out, tk);
-
-                if (feof(f_in) == 0){
-                    fseek(f_in, -1, SEEK_CUR);
+                isReal = true;
+            }
+            
+            if(isalpha(entry)){
+                tk->name = (char *)malloc(sizeof(char));
+                //continua a leitura até encontrar um espaço salvando o identificador completo
+                while (isspace(entry) == 0){
+                    sprintf(tk->name, "%s%c",tk->name ,entry);
+                    entry = prox_char(f_in);
+                }
+                
+                //coloca o value no inicio do nome
+                char *aux = (char *)malloc(sizeof(char));
+                if(isReal){
+                    tk->name = remove_zeros_and_concat(value, tk->name);
+                } else {
+                    sprintf(aux, "%d", (int) value);
+                    strcat(aux, tk->name);
+                    tk->name = aux;
                 }
 
-                return tk;
+                fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
+                exit(EXIT_FAILURE);
             }
         }
-        tk->tag = LIT_INT;
+        tk->tag = isReal ? LIT_REAL : LIT_INT;
         tk->value = value;
         grava_token(f_out, tk);
         
@@ -414,7 +444,7 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
     tk->name = (char *)malloc(sizeof(word_cap*sizeof(char)));
 
     if(isalpha(entry)){
-        while (isalpha(entry)){
+        while (isalpha(entry) || entry == '_' || entry == '.'){
             if (word_size >= word_cap){
                 word_cap += 10;  // Aumente a capacidade em incrementos de 10
                 tk->name = (char *)realloc(tk->name, word_cap * sizeof(char));
@@ -425,8 +455,31 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
                 }
             }
             tk->name[word_size++] = entry;
+            printf("%c", entry);
             entry = prox_char(f_in);
         }
+
+        // Se encontrar um digito no meio do identificador, é um erro
+        if(isdigit(entry)){
+
+            while(isspace(entry) == 0){
+                if (word_size >= word_cap){
+                    word_cap += 10;  // Aumente a capacidade em incrementos de 10
+                    tk->name = (char *)realloc(tk->name, word_cap * sizeof(char));
+
+                    if (tk->name == NULL) {
+                        fprintf(stderr, "Erro na alocação de memória\n");
+                        exit(EXIT_FAILURE);
+                    }
+                }
+                tk->name[word_size++] = entry;
+                entry = prox_char(f_in);
+            }
+
+            fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
+            exit(EXIT_FAILURE);
+        }
+        
         
         if (verifica_reservada(tk->name) == 0){
             int tag = getTagByKey(tabela_simbolos, 10, tk->name);

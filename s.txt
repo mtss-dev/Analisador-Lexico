@@ -1,11 +1,5 @@
 Tokens        ||    Lexemas --> linha: 1
-KW_CHAR 			 char
-TK_ID 				 teste
+KW_REAL 			 real
+TK_ID 				 teste_item.dois
 OP_ATRIB 			 =
-LIT_CHAR 			 a
-
-Tokens        ||    Lexemas --> linha: 2
-KW_CHAR 			 char
-TK_ID 				 teste
-LIT_INT 			 22
-OP_ATRIB 			 =
+LIT_INT 			 99

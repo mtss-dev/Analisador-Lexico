@@ -1,3 +1,1 @@
-char teste = 'a'
-char teste2 = "sucumba999
-"
+real teste_item.dois = 99
