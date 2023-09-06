@@ -1,5 +1,5 @@
 .vscode/*
-
+main
 # Prerequisites
 *.d
 
@@ -8,7 +8,7 @@
 *.ko
 *.obj
 *.elf
-
+*.txt
 # Linker output
 *.ilk
 *.map

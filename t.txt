@@ -1,1 +1,0 @@
-real teste_item.dois = 99

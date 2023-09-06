@@ -1,5 +1,0 @@
-Tokens        ||    Lexemas --> linha: 1
-KW_REAL 			 real
-TK_ID 				 teste_item.dois
-OP_ATRIB 			 =
-LIT_INT 			 99
