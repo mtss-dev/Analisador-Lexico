@@ -22,15 +22,43 @@ struct Token {
     char *name;
 };
 
+
 // retorna a linha atual que está sendo lida pelo analisador
 int getLineNumber(){
     return linha_atual;
 }
 
 
+// verifica se a palavra passada está presenta na tabela hash
+int verifica_reservada(char *palavra){
+    int index = cria_chave(palavra) % tamanho;
+    if (tabela_simbolos[index] != NULL){
+        if (busca_lista(tabela_simbolos[index], cria_chave(palavra)) == 0){
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
 // retorna o proximo caractere do arquivo de entrada
 char prox_char(FILE *f_in){
     return fgetc(f_in);
+}
+
+
+// função auxiliar para remover os zeros desnecessários de um número real
+char *remove_zeros_and_concat(double value, const char *str) {
+    char num_str[50];
+    snprintf(num_str, sizeof(num_str), "%g", value);
+    size_t len = strlen(num_str) + strlen(str) + 1;
+    char *result = (char *)malloc(len);
+    if (result == NULL) {
+        return NULL;
+    }
+    strcpy(result, num_str);
+    strcat(result, str);
+    return result;
 }
 
 
@@ -44,52 +72,6 @@ void ignorar_espacos(FILE *f_in){
     }
 }
 
-
-// ignora linhas de comentário existentes no código como: \\oi \* oie */
-// é capaz de atualizar a contagem de linha incrementando linha_atual quando:
-// entra na etapa de ignorar comentário multilinha e quando encontra um '\n'
-bool verificar_comentário(FILE *f_in){
-    char aux_entry;
-    bool encontrou = false;
-
-    //ignora comentários de linha única verificando se existe "//"
-    if (entry == '/'){
-        entry =  prox_char(f_in);
-
-        if (entry == '/'){
-            encontrou = true;
-            while (entry != '\n' && !(feof(f_in))){
-                entry = prox_char(f_in);
-            }
-            printf("Encontrado: comentario simples\n");
-            fseek(f_in, -1, SEEK_CUR);
-
-        } else if (entry == '*'){
-            encontrou = true;
-            entry = prox_char(f_in);
-            aux_entry = prox_char(f_in);
-
-            printf("Encontrado: comentario multilinha\n");
-
-            while (entry != '*' && aux_entry != '/' && !(feof(f_in))){
-                
-                aux_entry = prox_char(f_in);
-
-                if (entry == '\n') linha_atual++;
-                entry = aux_entry;
-            }
-            printf("Encontrado: FIM comentario multilinha\n");
-            entry = prox_char(f_in);
-            entry = prox_char(f_in);
-
-            ignorar_espacos(f_in);
-        } else {
-            fseek(f_in, -2, SEEK_CUR);
-            entry = prox_char(f_in);
-        }
-    }
-    return encontrou; 
-}
 
 // grava o token correspondente no arquivo de saída com base em sua tk->tag
 void grava_token(FILE *out, struct Token *tk){
@@ -302,22 +284,64 @@ void grava_token(FILE *out, struct Token *tk){
 }
 
 
-// verifica se a palavra passada está presenta na tabela hash
-int verifica_reservada(char *palavra){
-    int index = cria_chave(palavra) % tamanho;
-    if (tabela_simbolos[index] != NULL){
-        if (busca_lista(tabela_simbolos[index], cria_chave(palavra)) == 0){
-            return 0;
+// ignora linhas de comentário existentes no código como: \\oi \* oie */
+// é capaz de atualizar a contagem de linha incrementando linha_atual quando:
+// entra na etapa de ignorar comentário multilinha e quando encontra um '\n'
+bool verificar_comentário(FILE *f_in){
+    char aux_entry;
+    bool encontrou = false;
+
+    //ignora comentários de linha única verificando se existe "//"
+    if (entry == '/'){
+        entry =  prox_char(f_in);
+
+        if (entry == '/'){
+            encontrou = true;
+            while (entry != '\n' && !(feof(f_in))){
+                entry = prox_char(f_in);
+            }
+            printf("Encontrado: comentario simples\n");
+            fseek(f_in, -1, SEEK_CUR);
+
+        } else if (entry == '*'){
+            encontrou = true;
+            entry = prox_char(f_in);
+            aux_entry = prox_char(f_in);
+
+            printf("Encontrado: comentario multilinha\n");
+
+            while (entry != '*' && aux_entry != '/' && !(feof(f_in))){
+                
+                aux_entry = prox_char(f_in);
+
+                if (entry == '\n') linha_atual++;
+                entry = aux_entry;
+            }
+            printf("Encontrado: FIM comentario multilinha\n");
+            entry = prox_char(f_in);
+            entry = prox_char(f_in);
+
+            ignorar_espacos(f_in);
+        } else {
+            fseek(f_in, -2, SEEK_CUR);
+            entry = prox_char(f_in);
         }
     }
-    return 1;
+    return encontrou; 
 }
+
 
 bool identificador_invalido(char entry, FILE *f_in){
     return (!isalpha(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
 }
 
-bool operador_simples(char entry){
+
+bool numero_invalido(char entry, FILE *f_in){
+    return (!isdigit(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
+}
+
+
+bool operador_valido(char entry){
     switch (entry){
     case '+':
         return true;
@@ -348,6 +372,46 @@ bool operador_simples(char entry){
         break;
     
     case '~':
+        return true;
+        break;
+
+    case '<':
+        return true;
+        break;
+    
+    case '>':
+        return true;
+        break;
+    
+    case '=':
+        return true;
+        break;
+    
+    case '!':
+        return true;
+        break;
+    
+    case '(':
+        return true;
+        break;
+
+    case ')':
+        return true;
+        break;
+
+    case '[':
+        return true;
+        break;
+
+    case ']':
+        return true;
+        break;
+
+    case '{':
+        return true;
+        break;
+
+    case '}':
         return true;
         break;
 
@@ -441,7 +505,7 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
         }
 
     default:
-        if (!(feof(f_in)) && operador_simples(entry)){
+        if (!(feof(f_in)) && operador_valido(entry)){
             tk->tag = entry_aux;
             grava_token(f_out, tk);
             return tk;
@@ -450,23 +514,6 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
     }
 }
  
- // função auxiliar para remover os zeros desnecessários de um número real
- char *remove_zeros_and_concat(double value, const char *str) {
-    char num_str[50];
-    snprintf(num_str, sizeof(num_str), "%g", value);
-    size_t len = strlen(num_str) + strlen(str) + 1;
-    char *result = (char *)malloc(len);
-    if (result == NULL) {
-        return NULL;
-    }
-    strcpy(result, num_str);
-    strcat(result, str);
-    return result;
-}
-
-bool numero_invalido(char entry, FILE *f_in){
-    return (!isdigit(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
-}
 
 // verifica o tipo de digito a ser tokenizado (int ou real) e passa para grava_token()
 // é capaz de atualizar a contagem de linha incrementando linha_atual chamando ignorar_espaco()
