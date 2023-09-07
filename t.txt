@@ -1,0 +1,25 @@
+//Programa para calcular a minha media em Compiladores :D
+
+// = + - * / % < > & | ~
+
+real primeira_nota = 7.9;
+real segunda_nota = 8.0;
+real terceira_nota = 9.75;
+
+char aluno = "Matheus";
+
+real soma_notas = primeira_nota + segunda_nota + terceira_nota;
+
+real media = soma_notas / 3;
+
+char situacao;
+
+//real notas[3] = {primeira_nota,segunda_nota,terceira_nota}
+
+if (media >= 5.0{
+     situacao = "Aprovado";
+}else{
+    situacao = "Reprovado"
+}
+
+output(situacao)

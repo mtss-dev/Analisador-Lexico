@@ -1,0 +1,53 @@
+
+Tokens        ||    Lexemas --> linha: 5
+OP_DIV 				 /
+TK_ID 				 eal
+TK_ID 				 primeira_nota
+OP_ATRIB 			 =
+LIT_REAL 			 7.90000
+
+Tokens        ||    Lexemas --> linha: 6
+KW_REAL 			 real
+TK_ID 				 segunda_nota
+OP_ATRIB 			 =
+LIT_REAL 			 8.00000
+
+Tokens        ||    Lexemas --> linha: 7
+KW_REAL 			 real
+TK_ID 				 terceira_nota
+OP_ATRIB 			 =
+LIT_REAL 			 9.75000
+
+Tokens        ||    Lexemas --> linha: 9
+KW_CHAR 			 char
+TK_ID 				 aluno
+OP_ATRIB 			 =
+LIT_STRING 			 Matheus
+
+Tokens        ||    Lexemas --> linha: 11
+KW_REAL 			 real
+TK_ID 				 soma_notas
+OP_ATRIB 			 =
+TK_ID 				 primeira_nota
+OP_SOMA 			 +
+TK_ID 				 segunda_nota
+OP_SOMA 			 +
+TK_ID 				 terceira_nota
+
+Tokens        ||    Lexemas --> linha: 13
+KW_REAL 			 real
+TK_ID 				 media
+OP_ATRIB 			 =
+TK_ID 				 soma_notas
+OP_DIV 				 /
+LIT_INT 			 3
+
+Tokens        ||    Lexemas --> linha: 15
+KW_CHAR 			 char
+TK_ID 				 situacao
+
+Tokens        ||    Lexemas --> linha: 19
+KW_IF 				 if
+TK_ID 				 media
+OP_GE 				 >=
+TOKEN_ERROR 		 5{

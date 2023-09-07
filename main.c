@@ -129,7 +129,7 @@ void grava_token(FILE *out, struct Token *tk){
         break;
 
     case 47:
-        sprintf(text, "OP_DIV \t\t\t\t \\\n");
+        sprintf(text, "OP_DIV \t\t\t\t /\n");
         fwrite(text, strlen(text), 1, out);
         break;
 
@@ -375,6 +375,10 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
     return result;
 }
 
+bool numero_invalido(char entry, FILE *f_in){
+    return (!isdigit(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
+}
+
 // verifica o tipo de digito a ser tokenizado (int ou real) e passa para grava_token()
 // é capaz de atualizar a contagem de linha incrementando linha_atual chamando ignorar_espaco()
 struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
@@ -399,11 +403,11 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
                 }
                 isReal = true;
             }
-            
-            if(isalpha(entry)){
+
+            if(numero_invalido(entry, f_in)){
                 tk->name = (char *)malloc(sizeof(char));
                 //continua a leitura até encontrar um espaço salvando o identificador completo
-                while (isspace(entry) == 0){
+                while (isspace(entry) == 0 && feof(f_in) == 0 && entry != ';'){
                     sprintf(tk->name, "%s%c",tk->name ,entry);
                     entry = prox_char(f_in);
                 }
@@ -418,6 +422,7 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
                     tk->name = aux;
                 }
 
+                grava_token(f_out, tk);
                 fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
                 exit(EXIT_FAILURE);
             }
@@ -434,6 +439,10 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
     }
     return NULL;
 };
+
+bool identificador_invalido(char entry, FILE *f_in){
+    return (!isalpha(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
+}
 
 
 // verifica se é um identificador ou uma palavra reservada e passa para grava_token()
@@ -459,10 +468,10 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
             entry = prox_char(f_in);
         }
 
-        // Se encontrar um digito no meio do identificador, é um erro
-        if(isdigit(entry)){
+        //Se encontrar um digito no meio do identificador, é um erro
+        if(identificador_invalido(entry, f_in)){
 
-            while(isspace(entry) == 0){
+            while(isspace(entry) == 0 && feof(f_in) == 0 && entry != ';'){
                 if (word_size >= word_cap){
                     word_cap += 10;  // Aumente a capacidade em incrementos de 10
                     tk->name = (char *)realloc(tk->name, word_cap * sizeof(char));
@@ -475,7 +484,7 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
                 tk->name[word_size++] = entry;
                 entry = prox_char(f_in);
             }
-
+            grava_token(f_out, tk);
             fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
             exit(EXIT_FAILURE);
         }
@@ -557,20 +566,24 @@ struct Token *verificar_caractere(FILE *f_in, FILE *f_out){
     struct Token *tk = (struct Token *)malloc(sizeof(struct Token));
 
     if(entry == 39){
+        tk->name = (char *)malloc(sizeof(char));
         entry = prox_char(f_in);
-
-        tk->name = &entry;
-        tk->tag = LIT_CHAR;
-
-        grava_token(f_out, tk);
+        tk->name[0] = entry;
 
         entry = prox_char(f_in);
-
         if (entry != 39){
-            // erro
-            printf("deu merda, caractere grande demais\n");
+            // continua a leitura até encontrar um espaço salvando o identificador completo
+            while (isspace(entry) == 0 && feof(f_in) == 0 && entry != ';'){
+                sprintf(tk->name, "%s%c",tk->name ,entry);
+                entry = prox_char(f_in);
+            }
+            grava_token(f_out, tk);
+            fprintf(f_out,"TOKEN_ERROR \t\t \'%s\n", tk->name);
             exit(EXIT_FAILURE);
+
         }
+        tk->tag = LIT_CHAR;
+        grava_token(f_out, tk);
         return tk;
     }
 
@@ -587,8 +600,10 @@ struct Token *verificar_string(FILE *f_in, FILE *f_out){
         entry = prox_char(f_in);
         while (entry != 34){
 
-            if (entry == '\n'){
+            if (entry == '\n' || feof(f_in) == 1){
                 printf("erro! não finalizou a string\n");
+                grava_token(f_out, tk);
+                fprintf(f_out,"TOKEN_ERROR \t\t \"%s\n", tk->name);
                 exit(EXIT_FAILURE);
             }
 
