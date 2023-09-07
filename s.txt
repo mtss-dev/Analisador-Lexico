@@ -47,6 +47,33 @@ TK_ID 				 situacao
 
 Tokens        ||    Lexemas --> linha: 19
 KW_IF 				 if
+OP_ABREPAR 			 (
 TK_ID 				 media
 OP_GE 				 >=
-TOKEN_ERROR 		 5){
+LIT_REAL 			 5.00000
+OP_FECHAPAR 		 )
+OP_ABRECHV 			 {
+
+Tokens        ||    Lexemas --> linha: 20
+TK_ID 				 situacao
+OP_ATRIB 			 =
+LIT_STRING 			 Aprovado
+
+Tokens        ||    Lexemas --> linha: 21
+OP_FECHACHV 		 }
+KW_ELSE 			 else
+OP_ABRECHV 			 {
+
+Tokens        ||    Lexemas --> linha: 22
+TK_ID 				 situacao
+OP_ATRIB 			 =
+LIT_STRING 			 Reprovado
+
+Tokens        ||    Lexemas --> linha: 23
+OP_FECHACHV 		 }
+
+Tokens        ||    Lexemas --> linha: 25
+KW_OUTPUT 			 output
+OP_ABREPAR 			 (
+TK_ID 				 situacao
+OP_FECHAPAR 		 )

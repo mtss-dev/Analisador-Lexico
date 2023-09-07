@@ -16,10 +16,10 @@ char situacao;
 
 //real notas[3] = {primeira_nota,segunda_nota,terceira_nota}
 
-if (media >= 5.0){
+if (media >= 5.0 ) {
      situacao = "Aprovado";
-}else{
+} else {
     situacao = "Reprovado"
 }
 
-output(situacao)
+output ( situacao )

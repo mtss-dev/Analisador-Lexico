@@ -109,7 +109,7 @@ void grava_token(FILE *out, struct Token *tk){
         break;
     
     case 41:
-        sprintf(text, "OP_FECHAPAR \t\t\t )\n");
+        sprintf(text, "OP_FECHAPAR \t\t )\n");
         fwrite(text, strlen(text), 1, out);
         break;
 
@@ -159,7 +159,7 @@ void grava_token(FILE *out, struct Token *tk){
         break;
 
     case 123:
-        sprintf(text, "OP_ABRECHV \t\t\t |\n");
+        sprintf(text, "OP_ABRECHV \t\t\t {\n");
         fwrite(text, strlen(text), 1, out);
         break;
 
@@ -169,7 +169,7 @@ void grava_token(FILE *out, struct Token *tk){
         break;
 
     case 125:
-        sprintf(text, "OP_FECHACHV \t\t\t {\n");
+        sprintf(text, "OP_FECHACHV \t\t }\n");
         fwrite(text, strlen(text), 1, out);
         break;
 
@@ -341,6 +341,7 @@ bool numero_invalido(char entry, FILE *f_in){
 }
 
 
+// verifica se o operador é válido
 bool operador_valido(char entry){
     switch (entry){
     case '+':
@@ -352,10 +353,6 @@ bool operador_valido(char entry){
         break;
     
     case '*':
-        return true;
-        break;
-    
-    case '/':
         return true;
         break;
     
@@ -375,22 +372,6 @@ bool operador_valido(char entry){
         return true;
         break;
 
-    case '<':
-        return true;
-        break;
-    
-    case '>':
-        return true;
-        break;
-    
-    case '=':
-        return true;
-        break;
-    
-    case '!':
-        return true;
-        break;
-    
     case '(':
         return true;
         break;
@@ -412,6 +393,10 @@ bool operador_valido(char entry){
         break;
 
     case '}':
+        return true;
+        break;
+
+    case ';':
         return true;
         break;
 
