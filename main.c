@@ -47,45 +47,48 @@ void ignorar_espacos(FILE *f_in){
 
 // ignora linhas de comentário existentes no código como: \\oi \* oie */
 // é capaz de atualizar a contagem de linha incrementando linha_atual quando:
-// entra na etapa de ignorar comentário multilinha ou chama ignorar_espacos em comentários simples.
-void verificar_comentário(FILE *f_in){
+// entra na etapa de ignorar comentário multilinha e quando encontra um '\n'
+bool verificar_comentário(FILE *f_in){
     char aux_entry;
+    bool encontrou = false;
 
     //ignora comentários de linha única verificando se existe "//"
     if (entry == '/'){
         entry =  prox_char(f_in);
 
         if (entry == '/'){
+            encontrou = true;
             while (entry != '\n' && !(feof(f_in))){
                 entry = prox_char(f_in);
             }
             printf("Encontrado: comentario simples\n");
-            ignorar_espacos(f_in);
+            fseek(f_in, -1, SEEK_CUR);
 
         } else if (entry == '*'){
-        entry = prox_char(f_in);
-        aux_entry = prox_char(f_in);
-
-        printf("Encontrado: comentario multilinha\n");
-
-        while (entry != '*' && aux_entry != '/' && !(feof(f_in))){
-            
+            encontrou = true;
+            entry = prox_char(f_in);
             aux_entry = prox_char(f_in);
 
-            if (entry == '\n') linha_atual++;
-            entry = aux_entry;
-        }
-        printf("Encontrado: FIM comentario multilinha\n");
-        entry = prox_char(f_in);
-        entry = prox_char(f_in);
+            printf("Encontrado: comentario multilinha\n");
 
-        ignorar_espacos(f_in);
+            while (entry != '*' && aux_entry != '/' && !(feof(f_in))){
+                
+                aux_entry = prox_char(f_in);
+
+                if (entry == '\n') linha_atual++;
+                entry = aux_entry;
+            }
+            printf("Encontrado: FIM comentario multilinha\n");
+            entry = prox_char(f_in);
+            entry = prox_char(f_in);
+
+            ignorar_espacos(f_in);
         } else {
             fseek(f_in, -2, SEEK_CUR);
             entry = prox_char(f_in);
         }
-        
-    } 
+    }
+    return encontrou; 
 }
 
 // grava o token correspondente no arquivo de saída com base em sua tk->tag
@@ -265,6 +268,49 @@ int verifica_reservada(char *palavra){
     return 1;
 }
 
+bool identificador_invalido(char entry, FILE *f_in){
+    return (!isalpha(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
+}
+
+bool operador_simples(char entry){
+    switch (entry){
+    case '+':
+        return true;
+        break;
+    
+    case '-':
+        return true;
+        break;
+    
+    case '*':
+        return true;
+        break;
+    
+    case '/':
+        return true;
+        break;
+    
+    case '%':
+        return true;
+        break;
+    
+    case '&':
+        return true;
+        break;
+
+    case '|':
+        return true;
+        break;
+    
+    case '~':
+        return true;
+        break;
+
+    default:
+        return false;
+        break;
+    }
+}
 
 // verifica o tipo de operador a ser tokenizado e passa para grava_token()
 struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
@@ -341,24 +387,22 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
         }
 
     case '/':
-        verificar_comentário(f_in);
-        tk->tag = entry_aux;
-        grava_token(f_out, tk);
-        return tk;
-
-    default:
-        if (feof(f_in) == 1){
+        if(verificar_comentário(f_in)){
             return NULL;
+        } else {
+            tk->tag = entry_aux;
+            grava_token(f_out, tk);
+            return tk;
         }
 
-        tk->tag = entry_aux;
-        grava_token(f_out, tk);
-        return tk;
-
+    default:
+        if (!(feof(f_in)) && operador_simples(entry)){
+            tk->tag = entry_aux;
+            grava_token(f_out, tk);
+            return tk;
+        }
+        return NULL;
     }
-    
-    return NULL;
-    
 }
  
  // função auxiliar para remover os zeros desnecessários de um número real
@@ -440,11 +484,6 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
     return NULL;
 };
 
-bool identificador_invalido(char entry, FILE *f_in){
-    return (!isalpha(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
-}
-
-
 // verifica se é um identificador ou uma palavra reservada e passa para grava_token()
 struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
     int word_cap = 10, word_size = 0;
@@ -467,7 +506,7 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
             printf("%c", entry);
             entry = prox_char(f_in);
         }
-
+        printf("\n");
         //Se encontrar um digito no meio do identificador, é um erro
         if(identificador_invalido(entry, f_in)){
 
