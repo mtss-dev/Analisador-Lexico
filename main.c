@@ -115,6 +115,11 @@ void grava_token(FILE *out, struct Token *tk){
         sprintf(text, "OP_MOD \t\t\t\t %%\n");
         fwrite(text, strlen(text), 1, out);
         break;
+    
+    case 38:
+        sprintf(text, "OP_E \t\t\t\t &\n");
+        fwrite(text, strlen(text), 1, out);
+        break;
 
     case 42:
         sprintf(text, "OP_MULT \t\t\t *\n");
@@ -148,6 +153,16 @@ void grava_token(FILE *out, struct Token *tk){
     
     case 62:
         sprintf(text, "OP_MAIOR \t\t\t >\n");
+        fwrite(text, strlen(text), 1, out);
+        break;
+
+    case 124:
+        sprintf(text, "OP_OU \t\t\t\t |\n");
+        fwrite(text, strlen(text), 1, out);
+        break;
+
+    case 126:
+        sprintf(text, "OP_NEGA \t\t\t ~\n");
         fwrite(text, strlen(text), 1, out);
         break;
 

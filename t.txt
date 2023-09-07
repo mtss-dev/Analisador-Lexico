@@ -1,11 +1,5 @@
 //Programa para calcular a minha media em Compiladores :D
 
-/* sacanagem
-
-
-
-*/
-
 // = + - * / % < > & | ~
 
 real primeira_nota = 7.9;
