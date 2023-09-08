@@ -8,6 +8,7 @@
 
 
 int linha_atual = 1, aux = 0, tamanho = 10;
+bool jumpLine = false;
 int id_tabela = 0; 
 char entry;
 char *rersevadas[11] = {"char", "int", "real", "bool", "if", "then", "else", "while", "input", "output", "return"};
@@ -79,7 +80,7 @@ void grava_token(FILE *out, struct Token *tk){
     
     if (aux < linha_atual){
         aux = linha_atual;
-        if(linha_atual > 1){
+        if(linha_atual > 1 && jumpLine){
             sprintf(text, "\n");
             fwrite(text, strlen(text), 1,out);
         }
@@ -96,86 +97,115 @@ void grava_token(FILE *out, struct Token *tk){
     case 37:
         sprintf(text, "OP_MOD \t\t\t\t %%\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
     
     case 38:
         sprintf(text, "OP_E \t\t\t\t &\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 40:
         sprintf(text, "OP_ABREPAR \t\t\t (\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
     
     case 41:
         sprintf(text, "OP_FECHAPAR \t\t )\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 42:
         sprintf(text, "OP_MULT \t\t\t *\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 43:
         sprintf(text, "OP_SOMA \t\t\t +\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
+        break;
+
+    case 44:
+        sprintf(text, "OP_COMMA \t\t\t ,\n");
+        fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 45:
         sprintf(text, "OP_SUB \t\t\t\t -\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 47:
         sprintf(text, "OP_DIV \t\t\t\t /\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
+        break;
+
+    case 59:
+        sprintf(text, "OP_Semi \t\t\t ;\n");
+        fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 60: 
         sprintf(text, "OP_MENOR \t\t\t <\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
         
     case 61:
         sprintf(text, "OP_ATRIB \t\t\t =\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
     
     case 62:
         sprintf(text, "OP_MAIOR \t\t\t >\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
     
     case 91:
         sprintf(text, "OP_ABRECOL \t\t\t [\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
     
     case 93:
-        sprintf(text, "OP_FECHACOL \t\t\t ]\n");
+        sprintf(text, "OP_FECHACOL \t\t ]\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 123:
         sprintf(text, "OP_ABRECHV \t\t\t {\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 124:
         sprintf(text, "OP_OU \t\t\t\t |\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 125:
         sprintf(text, "OP_FECHACHV \t\t }\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case 126:
         sprintf(text, "OP_NEGA \t\t\t ~\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case KW_CHAR:
@@ -236,16 +266,19 @@ void grava_token(FILE *out, struct Token *tk){
     case OPERATOR_LE:
         sprintf(text, "OP_LE \t\t\t\t <=\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case OPERATOR_GE:
         sprintf(text, "OP_GE \t\t\t\t >=\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case OPERATOR_EQ:
         sprintf(text, "OP_EQ \t\t\t\t ==\n");
         fwrite(text, strlen(text), 1, out);
+        jumpLine = true;
         break;
 
     case OPERATOR_DIF:
@@ -279,6 +312,7 @@ void grava_token(FILE *out, struct Token *tk){
         break;
 
     default:
+        jumpLine = true;
         break;
     }
 }
@@ -326,24 +360,45 @@ bool verificar_comentário(FILE *f_in){
             fseek(f_in, -2, SEEK_CUR);
             entry = prox_char(f_in);
         }
+        
     }
     return encontrou; 
 }
-
-
-bool identificador_invalido(char entry, FILE *f_in){
-    return (!isalpha(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
-}
-
-
-bool numero_invalido(char entry, FILE *f_in){
-    return (!isdigit(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
-}
-
-
-// verifica se o operador é válido
-bool operador_valido(char entry){
+//funcao para verificar se entry é um caractere especial (,;()[]{}=+-*/%<>&|~)
+bool caractere_especial(char entry){
     switch (entry){
+    case '(':
+        return true;
+        break;
+    
+    case ')':
+        return true;
+        break;
+    
+    case '[':
+        return true;
+        break;
+    
+    case ']':
+        return true;
+        break;
+    
+    case '{':
+        return true;
+        break;
+    
+    case '}':
+        return true;
+        break;
+    
+    case ';':
+        return true;
+        break;
+    
+    case '=':
+        return true;
+        break;
+    
     case '+':
         return true;
         break;
@@ -356,14 +411,26 @@ bool operador_valido(char entry){
         return true;
         break;
     
+    case '/':
+        return true;
+        break;
+    
     case '%':
+        return true;
+        break;
+    
+    case '<':
+        return true;
+        break;
+    
+    case '>':
         return true;
         break;
     
     case '&':
         return true;
         break;
-
+    
     case '|':
         return true;
         break;
@@ -372,39 +439,25 @@ bool operador_valido(char entry){
         return true;
         break;
 
-    case '(':
+    case ',':
         return true;
         break;
-
-    case ')':
-        return true;
-        break;
-
-    case '[':
-        return true;
-        break;
-
-    case ']':
-        return true;
-        break;
-
-    case '{':
-        return true;
-        break;
-
-    case '}':
-        return true;
-        break;
-
-    case ';':
-        return true;
-        break;
-
+    
     default:
         return false;
         break;
     }
 }
+
+bool identificador_invalido(char entry, FILE *f_in){
+    return (!isalpha(entry) && !isspace(entry) && feof(f_in) == 0 && !caractere_especial(entry)) ? true : false;
+}
+
+
+bool numero_invalido(char entry, FILE *f_in){
+    return (!isdigit(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
+}
+
 
 // verifica o tipo de operador a ser tokenizado e passa para grava_token()
 struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
@@ -490,9 +543,10 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
         }
 
     default:
-        if (!(feof(f_in)) && operador_valido(entry)){
+        if (!(feof(f_in)) && caractere_especial(entry)){
             tk->tag = entry_aux;
             grava_token(f_out, tk);
+            
             return tk;
         }
         return NULL;
@@ -525,7 +579,7 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
                 isReal = true;
             }
 
-            if(numero_invalido(entry, f_in)){
+            if(numero_invalido(entry, f_in) && !caractere_especial(entry)){
                 tk->name = (char *)malloc(sizeof(char));
                 //continua a leitura até encontrar um espaço salvando o identificador completo
                 while (isspace(entry) == 0 && feof(f_in) == 0 && entry != ';'){
@@ -580,13 +634,11 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
                 }
             }
             tk->name[word_size++] = entry;
-            printf("%c", entry);
             entry = prox_char(f_in);
         }
         printf("\n");
         //Se encontrar um digito no meio do identificador, é um erro
         if(identificador_invalido(entry, f_in)){
-
             while(isspace(entry) == 0 && feof(f_in) == 0 && entry != ';'){
                 if (word_size >= word_cap){
                     word_cap += 10;  // Aumente a capacidade em incrementos de 10
@@ -604,8 +656,7 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
             fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
             exit(EXIT_FAILURE);
         }
-        
-        
+
         if (verifica_reservada(tk->name) == 0){
             int tag = getTagByKey(tabela_simbolos, 10, tk->name);
             int index = cria_chave(tk->name);
@@ -752,12 +803,11 @@ void analex(FILE *f_in, FILE *f_out){
     ignorar_espacos(f_in);
     verificar_comentário(f_in);
 
-    tk = verificar_identificador(f_in, f_out);
     tk = verificar_operadores(f_in, f_out);
+    tk = verificar_identificador(f_in, f_out);
     tk = verificar_digitos(f_in, f_out);
     tk = verificar_caractere(f_in, f_out);
     tk = verificar_string(f_in, f_out);
-    
 }
 
 void main(){
