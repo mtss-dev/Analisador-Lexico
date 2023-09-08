@@ -1,4 +1,9 @@
-Tokens        ||    Lexemas --> linha: 3
+Tokens        ||    Lexemas --> linha: 1
+TK_ID 				 eu
+TK_ID 				 odeio
+TK_ID 				 tudo
+
+Tokens        ||    Lexemas --> linha: 5
 OP_COMMA 			 ,
 OP_Semi 			 ;
 OP_ABREPAR 			 (
@@ -18,35 +23,35 @@ OP_MAIOR 			 >
 OP_E 				 &
 OP_OU 				 |
 
-Tokens        ||    Lexemas --> linha: 5
+Tokens        ||    Lexemas --> linha: 7
 KW_REAL 			 real
 TK_ID 				 primeira_nota
 OP_ATRIB 			 =
 LIT_REAL 			 7.90000
 OP_Semi 			 ;
 
-Tokens        ||    Lexemas --> linha: 6
+Tokens        ||    Lexemas --> linha: 8
 KW_REAL 			 real
 TK_ID 				 segunda_nota
 OP_ATRIB 			 =
 LIT_REAL 			 8.00000
 OP_Semi 			 ;
 
-Tokens        ||    Lexemas --> linha: 7
+Tokens        ||    Lexemas --> linha: 9
 KW_REAL 			 real
 TK_ID 				 terceira_nota
 OP_ATRIB 			 =
 LIT_REAL 			 9.75000
 OP_Semi 			 ;
 
-Tokens        ||    Lexemas --> linha: 9
+Tokens        ||    Lexemas --> linha: 11
 KW_CHAR 			 char
 TK_ID 				 aluno
 OP_ATRIB 			 =
 LIT_STRING 			 Matheus
 OP_Semi 			 ;
 
-Tokens        ||    Lexemas --> linha: 11
+Tokens        ||    Lexemas --> linha: 13
 KW_REAL 			 real
 TK_ID 				 media
 OP_ATRIB 			 =
@@ -61,12 +66,12 @@ OP_DIV 				 /
 LIT_REAL 			 3.00000
 OP_Semi 			 ;
 
-Tokens        ||    Lexemas --> linha: 13
+Tokens        ||    Lexemas --> linha: 15
 KW_CHAR 			 char
 TK_ID 				 situacao
 OP_Semi 			 ;
 
-Tokens        ||    Lexemas --> linha: 15
+Tokens        ||    Lexemas --> linha: 17
 KW_IF 				 if
 OP_ABREPAR 			 (
 TK_ID 				 media
@@ -75,32 +80,32 @@ LIT_REAL 			 5.00000
 OP_FECHAPAR 		 )
 OP_ABRECHV 			 {
 
-Tokens        ||    Lexemas --> linha: 16
+Tokens        ||    Lexemas --> linha: 18
 TK_ID 				 situacao
 OP_ATRIB 			 =
 LIT_STRING 			 Aprovado
 OP_Semi 			 ;
 
-Tokens        ||    Lexemas --> linha: 17
+Tokens        ||    Lexemas --> linha: 19
 OP_FECHACHV 		 }
 KW_ELSE 			 else
 OP_ABRECHV 			 {
 
-Tokens        ||    Lexemas --> linha: 18
+Tokens        ||    Lexemas --> linha: 20
 TK_ID 				 situacao
 OP_ATRIB 			 =
 LIT_STRING 			 Reprovado
 
-Tokens        ||    Lexemas --> linha: 19
+Tokens        ||    Lexemas --> linha: 21
 OP_FECHACHV 		 }
 
-Tokens        ||    Lexemas --> linha: 21
+Tokens        ||    Lexemas --> linha: 23
 KW_OUTPUT 			 output
 OP_ABREPAR 			 (
 TK_ID 				 situacao
 OP_FECHAPAR 		 )
 
-Tokens        ||    Lexemas --> linha: 23
+Tokens        ||    Lexemas --> linha: 25
 KW_RETURN 			 return
 LIT_INT 			 0
 OP_Semi 			 ;

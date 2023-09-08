@@ -1,6 +1,6 @@
-//Programa para calcular a minha media em Compiladores :D
+//Programa fictico para calcular a media de um aluno
 
-,;()[]{}=+-*/%<>&|
+,;()[]{}=+-*/%<>&|          //Para mostrar que tratamos os tokens de todos os caracteres especiais
 
 real primeira_nota = 7.9;
 real segunda_nota = 8.0;

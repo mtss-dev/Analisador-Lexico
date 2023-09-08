@@ -552,8 +552,13 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
         return NULL;
     }
 }
- 
 
+void erro (FILE *f_out, struct Token *tk){
+    grava_token(f_out, tk);
+    fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
+    exit(EXIT_FAILURE);
+}
+ 
 // verifica o tipo de digito a ser tokenizado (int ou real) e passa para grava_token()
 // é capaz de atualizar a contagem de linha incrementando linha_atual chamando ignorar_espaco()
 struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
@@ -597,13 +602,12 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
                     tk->name = aux;
                 }
 
-                grava_token(f_out, tk);
-                fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
-                exit(EXIT_FAILURE);
+                erro(f_out, tk);
             }
         }
         tk->tag = isReal ? LIT_REAL : LIT_INT;
         tk->value = value;
+        jumpLine = true;    
         grava_token(f_out, tk);
         
         if (feof(f_in) == 0){
@@ -652,9 +656,7 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
                 tk->name[word_size++] = entry;
                 entry = prox_char(f_in);
             }
-            grava_token(f_out, tk);
-            fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
-            exit(EXIT_FAILURE);
+            erro(f_out, tk);
         }
 
         if (verifica_reservada(tk->name) == 0){
@@ -717,6 +719,7 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
             tk->tag = TK_IDENTIFIER;
             tabela_hash_adicionar(tabela_simbolos, cria_reservada(tk->name, tk->tag, id_tabela), tamanho);
             id_tabela++;
+            jumpLine = true;
             grava_token(f_out, tk);
         }
 
@@ -750,6 +753,7 @@ struct Token *verificar_caractere(FILE *f_in, FILE *f_out){
 
         }
         tk->tag = LIT_CHAR;
+        jumpLine = true;
         grava_token(f_out, tk);
         return tk;
     }
@@ -788,6 +792,7 @@ struct Token *verificar_string(FILE *f_in, FILE *f_out){
         }
         
         tk->tag = LIT_STRING;
+        jumpLine = true;
         grava_token(f_out, tk);
         return tk;
     }
