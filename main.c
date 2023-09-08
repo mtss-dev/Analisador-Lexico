@@ -6,7 +6,7 @@
 #include "tokens.h"
 #include "hash.h"
 
-
+// Variaveis globais
 int linha_atual = 1, aux = 0, tamanho = 10;
 bool jumpLine = false;
 int id_tabela = 0; 
@@ -16,19 +16,16 @@ int tags[11] = {KW_CHAR, KW_INT, KW_REAL, KW_BOOL, KW_IF, KW_THEN, KW_ELSE, KW_L
 
 Table_Hash tabela_simbolos;
 
-
 struct Token {
     int tag;
     double value;
     char *name;
 };
 
-
 // retorna a linha atual que está sendo lida pelo analisador
 int getLineNumber(){
     return linha_atual;
 }
-
 
 // verifica se a palavra passada está presenta na tabela hash
 int verifica_reservada(char *palavra){
@@ -41,12 +38,10 @@ int verifica_reservada(char *palavra){
     return 1;
 }
 
-
 // retorna o proximo caractere do arquivo de entrada
 char prox_char(FILE *f_in){
     return fgetc(f_in);
 }
-
 
 // função auxiliar para remover os zeros desnecessários de um número real
 char *remove_zeros_and_concat(double value, const char *str) {
@@ -62,7 +57,6 @@ char *remove_zeros_and_concat(double value, const char *str) {
     return result;
 }
 
-
 // ignora os espaços e identações como: ' ', '\n' e '\t'.
 // é capaz de atualizar a contagem de linha incrementando linha_atual
 void ignorar_espacos(FILE *f_in){
@@ -72,7 +66,6 @@ void ignorar_espacos(FILE *f_in){
         entry = prox_char(f_in);
     }
 }
-
 
 // grava o token correspondente no arquivo de saída com base em sua tk->tag
 void grava_token(FILE *out, struct Token *tk){
@@ -317,7 +310,6 @@ void grava_token(FILE *out, struct Token *tk){
     }
 }
 
-
 // ignora linhas de comentário existentes no código como: \\oi \* oie */
 // é capaz de atualizar a contagem de linha incrementando linha_atual quando:
 // entra na etapa de ignorar comentário multilinha e quando encontra um '\n'
@@ -364,6 +356,7 @@ bool verificar_comentário(FILE *f_in){
     }
     return encontrou; 
 }
+
 //funcao para verificar se entry é um caractere especial (,;()[]{}=+-*/%<>&|~)
 bool caractere_especial(char entry){
     switch (entry){
@@ -449,15 +442,15 @@ bool caractere_especial(char entry){
     }
 }
 
+// verifica se o identificador é válido
 bool identificador_invalido(char entry, FILE *f_in){
     return (!isalpha(entry) && !isspace(entry) && feof(f_in) == 0 && !caractere_especial(entry)) ? true : false;
 }
 
-
+// verifica se o número é válido
 bool numero_invalido(char entry, FILE *f_in){
     return (!isdigit(entry) && !isspace(entry) && feof(f_in) == 0 && entry != ';') ? true : false;
 }
-
 
 // verifica o tipo de operador a ser tokenizado e passa para grava_token()
 struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
@@ -553,6 +546,7 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
     }
 }
 
+// Função que deve ser chamada para imprimir uma mensagem de erro e finalizar o analisador
 void erro (FILE *f_out, struct Token *tk){
     grava_token(f_out, tk);
     fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
@@ -573,7 +567,6 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
             entry = prox_char(f_in);
 
             //Se encontrar uma letra no meio do número, é um erro
-
             if (entry == '.'){
                 entry = prox_char(f_in);
                 while(isdigit(entry)){
@@ -601,7 +594,6 @@ struct Token *verificar_digitos(FILE *f_in, FILE *f_out){
                     strcat(aux, tk->name);
                     tk->name = aux;
                 }
-
                 erro(f_out, tk);
             }
         }
@@ -629,7 +621,7 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
     if(isalpha(entry)){
         while (isalpha(entry) || entry == '_' || entry == '.'){
             if (word_size >= word_cap){
-                word_cap += 10;  // Aumente a capacidade em incrementos de 10
+                word_cap += 10;  
                 tk->name = (char *)realloc(tk->name, word_cap * sizeof(char));
 
                 if (tk->name == NULL) {
@@ -645,7 +637,7 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
         if(identificador_invalido(entry, f_in)){
             while(isspace(entry) == 0 && feof(f_in) == 0 && entry != ';'){
                 if (word_size >= word_cap){
-                    word_cap += 10;  // Aumente a capacidade em incrementos de 10
+                    word_cap += 10;  
                     tk->name = (char *)realloc(tk->name, word_cap * sizeof(char));
 
                     if (tk->name == NULL) {
@@ -779,7 +771,7 @@ struct Token *verificar_string(FILE *f_in, FILE *f_out){
             }
 
             if (word_size >= word_cap){
-                word_cap += 10;  // Aumente a capacidade em incrementos de 10
+                word_cap += 10;  
                 tk->name = (char *)realloc(tk->name, word_cap * sizeof(char));
 
                 if (tk->name == NULL) {
@@ -831,5 +823,7 @@ void main(){
         entry = prox_char(f_in);
         analex(f_in, f_out);
     }
-    
+
+    fclose(f_in);
+    fclose(f_out);   
 }
