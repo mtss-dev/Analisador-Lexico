@@ -315,41 +315,53 @@ void grava_token(FILE *out, struct Token *tk){
 // entra na etapa de ignorar comentário multilinha e quando encontra um '\n'
 bool verificar_comentário(FILE *f_in){
     char aux_entry;
-    bool encontrou = false;
+    int flag = 0;
+    bool encontrou = false, multi = false;
 
     //ignora comentários de linha única verificando se existe "//"
-    if (entry == '/'){
+    if (entry == '\\'){
         entry =  prox_char(f_in);
 
-        if (entry == '/'){
-            encontrou = true;
-            while (entry != '\n' && !(feof(f_in))){
-                entry = prox_char(f_in);
-            }
-            printf("Encontrado: comentario simples\n");
-            fseek(f_in, -1, SEEK_CUR);
-
-        } else if (entry == '*'){
+        if (entry == '\\'){
             encontrou = true;
             entry = prox_char(f_in);
-            aux_entry = prox_char(f_in);
 
-            printf("Encontrado: comentario multilinha\n");
-
-            while (entry != '*' && aux_entry != '/' && !(feof(f_in))){
-                
+            if (entry == '\\'){
+                multi = true;
+                encontrou = true;
+                entry = prox_char(f_in);
                 aux_entry = prox_char(f_in);
 
-                if (entry == '\n') linha_atual++;
-                entry = aux_entry;
-            }
-            printf("Encontrado: FIM comentario multilinha\n");
-            entry = prox_char(f_in);
-            entry = prox_char(f_in);
+                printf("Encontrado: comentario multilinha\n");
 
-            ignorar_espacos(f_in);
+                while (flag != 2 && !(feof(f_in))){
+                    
+                    if (aux_entry == '\n') linha_atual++;
+
+                    if(entry == '/' && aux_entry == '/'){
+                        flag++;
+                    }
+
+                    entry = aux_entry;
+                    aux_entry = prox_char(f_in);
+                }
+                printf("Encontrado: FIM comentario multilinha\n");
+                entry = aux_entry;
+                //ignorar_espacos(f_in);
+                //fseek(f_in, -1, SEEK_CUR);
+            }
+
+            if (multi == false){
+                while (entry != '\n' && !(feof(f_in))){
+                    entry = prox_char(f_in);
+                }
+                printf("Encontrado: comentario simples\n");
+                //ignorar_espacos(f_in);
+                //fseek(f_in, -1, SEEK_CUR);
+            }
+
         } else {
-            fseek(f_in, -2, SEEK_CUR);
+            fseek(f_in, -1, SEEK_CUR);
             entry = prox_char(f_in);
         }
         
@@ -796,9 +808,13 @@ struct Token *verificar_string(FILE *f_in, FILE *f_out){
 void analex(FILE *f_in, FILE *f_out){
 
     struct Token *tk = NULL;
-        
+    
     ignorar_espacos(f_in);
-    verificar_comentário(f_in);
+    
+    while (entry == '\\'){
+        verificar_comentário(f_in);
+        ignorar_espacos(f_in);
+    }
 
     tk = verificar_operadores(f_in, f_out);
     tk = verificar_identificador(f_in, f_out);
