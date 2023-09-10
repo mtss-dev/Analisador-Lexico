@@ -94,19 +94,19 @@ void grava_token(FILE *out, struct Token *tk){
         break;
     
     case 38:
-        sprintf(text, "OP_E \t\t\t\t &\n");
+        sprintf(text, "OP_AND \t\t\t\t &\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
 
     case 40:
-        sprintf(text, "OP_ABREPAR \t\t\t (\n");
+        sprintf(text, "SG_ABREPAR \t\t\t (\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
     
     case 41:
-        sprintf(text, "OP_FECHAPAR \t\t )\n");
+        sprintf(text, "SG_FECHAPAR \t\t )\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
@@ -124,7 +124,7 @@ void grava_token(FILE *out, struct Token *tk){
         break;
 
     case 44:
-        sprintf(text, "OP_COMMA \t\t\t ,\n");
+        sprintf(text, "SG_COMMA \t\t\t ,\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
@@ -142,7 +142,7 @@ void grava_token(FILE *out, struct Token *tk){
         break;
 
     case 59:
-        sprintf(text, "OP_Semi \t\t\t ;\n");
+        sprintf(text, "SG_SEMICOLON \t\t ;\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
@@ -166,37 +166,37 @@ void grava_token(FILE *out, struct Token *tk){
         break;
     
     case 91:
-        sprintf(text, "OP_ABRECOL \t\t\t [\n");
+        sprintf(text, "SG_ABRECOL \t\t\t [\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
     
     case 93:
-        sprintf(text, "OP_FECHACOL \t\t ]\n");
+        sprintf(text, "SG_FECHACOL \t\t ]\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
 
     case 123:
-        sprintf(text, "OP_ABRECHV \t\t\t {\n");
+        sprintf(text, "SG_ABRECHV \t\t\t {\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
 
     case 124:
-        sprintf(text, "OP_OU \t\t\t\t |\n");
+        sprintf(text, "OP_OR \t\t\t\t |\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
 
     case 125:
-        sprintf(text, "OP_FECHACHV \t\t }\n");
+        sprintf(text, "SG_FECHACHV \t\t }\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
 
     case 126:
-        sprintf(text, "OP_NEGA \t\t\t ~\n");
+        sprintf(text, "OP_NOT \t\t\t\t ~\n");
         fwrite(text, strlen(text), 1, out);
         jumpLine = true;
         break;
@@ -825,13 +825,13 @@ void analex(FILE *f_in, FILE *f_out){
 }
 
 void main(int argc, char *argv[]) {
-    if (argc != 3) {
-        printf("Uso: %s entrada.txt saida.txt\n", argv[0]);
+    if (argc != 2) {
+        printf("Uso: %s entrada.txt\n", argv[0]);
         exit(EXIT_FAILURE);
     }
     
     const char *nome_arquivo_entrada = argv[1];
-    const char *nome_arquivo_saida = argv[2];
+    const char *nome_arquivo_saida = "saida.txt";
 
     FILE *f_in = fopen(nome_arquivo_entrada, "r");
     if (f_in == NULL) {
