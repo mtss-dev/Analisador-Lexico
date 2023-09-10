@@ -826,7 +826,7 @@ void analex(FILE *f_in, FILE *f_out){
 
 void main(int argc, char *argv[]) {
     if (argc != 3) {
-        printf("Uso: %s arquivo_entrada.txt arquivo_saida.txt\n", argv[0]);
+        printf("Uso: %s entrada.txt saida.txt\n", argv[0]);
         exit(EXIT_FAILURE);
     }
     

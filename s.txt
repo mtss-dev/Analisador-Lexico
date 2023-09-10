@@ -1,3 +1,0 @@
-Tokens        ||    Lexemas --> linha: 5
-KW_REAL 			 real
-TOKEN_ERROR 		 primeira_nota7
