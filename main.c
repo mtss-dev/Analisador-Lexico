@@ -332,7 +332,7 @@ bool verificar_comentário(FILE *f_in){
                 entry = prox_char(f_in);
                 aux_entry = prox_char(f_in);
 
-                printf("Encontrado: comentario multilinha\n");
+                //printf("Encontrado: comentario multilinha\n");
 
                 while (flag != 2 && !(feof(f_in))){
                     
@@ -345,7 +345,7 @@ bool verificar_comentário(FILE *f_in){
                     entry = aux_entry;
                     aux_entry = prox_char(f_in);
                 }
-                printf("Encontrado: FIM comentario multilinha\n");
+                //printf("Encontrado: FIM comentario multilinha\n");
                 entry = aux_entry;
                 //ignorar_espacos(f_in);
                 //fseek(f_in, -1, SEEK_CUR);
@@ -355,7 +355,7 @@ bool verificar_comentário(FILE *f_in){
                 while (entry != '\n' && !(feof(f_in))){
                     entry = prox_char(f_in);
                 }
-                printf("Encontrado: comentario simples\n");
+                //printf("Encontrado: comentario simples\n");
                 //ignorar_espacos(f_in);
                 //fseek(f_in, -1, SEEK_CUR);
             }
@@ -562,6 +562,7 @@ struct Token *verificar_operadores(FILE *f_in, FILE *f_out){
 void erro (FILE *f_out, struct Token *tk){
     grava_token(f_out, tk);
     fprintf(f_out,"TOKEN_ERROR \t\t %s\n", tk->name);
+    printf("Erro léxico na linha %d, verificar o arquivo de saída\n", getLineNumber());
     exit(EXIT_FAILURE);
 }
  
@@ -644,7 +645,7 @@ struct Token *verificar_identificador(FILE *f_in, FILE *f_out){
             tk->name[word_size++] = entry;
             entry = prox_char(f_in);
         }
-        printf("\n");
+        //printf("\n");
         //Se encontrar um digito no meio do identificador, é um erro
         if(identificador_invalido(entry, f_in)){
             while(isspace(entry) == 0 && feof(f_in) == 0 && entry != ';'){
@@ -776,9 +777,9 @@ struct Token *verificar_string(FILE *f_in, FILE *f_out){
         while (entry != 34){
 
             if (entry == '\n' || feof(f_in) == 1){
-                printf("erro! não finalizou a string\n");
-                grava_token(f_out, tk);
-                fprintf(f_out,"TOKEN_ERROR \t\t \"%s\n", tk->name);
+                //printf("erro! não finalizou a string\n");
+                erro(f_out, tk);
+                //fprintf(f_out,"TOKEN_ERROR \t\t \"%s\n", tk->name);
                 exit(EXIT_FAILURE);
             }
 
@@ -823,10 +824,27 @@ void analex(FILE *f_in, FILE *f_out){
     tk = verificar_string(f_in, f_out);
 }
 
-void main(){
+void main(int argc, char *argv[]) {
+    if (argc != 3) {
+        printf("Uso: %s arquivo_entrada.txt arquivo_saida.txt\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
     
-    FILE *f_in = fopen("t.txt", "r");
-    FILE *f_out = fopen("s.txt", "w");
+    const char *nome_arquivo_entrada = argv[1];
+    const char *nome_arquivo_saida = argv[2];
+
+    FILE *f_in = fopen(nome_arquivo_entrada, "r");
+    if (f_in == NULL) {
+        perror("Erro ao abrir arquivo de entrada");
+        exit(EXIT_FAILURE);
+    }
+
+    FILE *f_out = fopen(nome_arquivo_saida, "w");
+    if (f_out == NULL) {
+        perror("Erro ao abrir arquivo de saída");
+        fclose(f_in);
+        exit(EXIT_FAILURE);
+    }
 
     tabela_simbolos = tabela_hash_criar(tamanho);
 
@@ -839,6 +857,8 @@ void main(){
         entry = prox_char(f_in);
         analex(f_in, f_out);
     }
+
+    printf("Análise léxica concluída com sucesso!\n");
 
     fclose(f_in);
     fclose(f_out);   
